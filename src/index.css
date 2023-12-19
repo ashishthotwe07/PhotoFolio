@@ -11,3 +11,75 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Album form */
+.albumform {
+  width: 65%;
+  background-color: #2c3e50; /* Teal color */
+  border-radius: 10px;
+  padding: 20px; /* Added padding */
+  margin: 20px auto; /* Center the form */
+  color: #ecf0f1; /* Text color */
+}
+
+.albumform h5 {
+  margin-bottom: 20px; /* Added margin for spacing */
+}
+
+.albumform form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom styling for input */
+.custom-input {
+  width: 100%; /* Make the input wider */
+  margin-bottom: 10px; /* Added margin for spacing */
+}
+
+
+/* AlbumList.css */
+.albumContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.album-item {
+
+   display: flex;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 150px; /* Set the width of the album */
+  height: 170px; /* Set the height to match the width */
+  position: relative;
+  /* align-items: center; */
+  justify-content: center;
+}
+
+.album-options {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  color: #007bff;
+}
+
+/* image folder icon */
+
+.imageFolderIcon{
+  width: 150px;
+  height: 150px;
+  cursor: pointer;
+  
+}
+.albumName{
+  font-style: italic;
+  position: absolute;
+  top: 50%;
+  left: 28%;
+  cursor: pointer;
+}
+
