@@ -1,4 +1,4 @@
-// ImageForm.js
+// Import necessary dependencies
 import React, { useState, useEffect } from "react";
 import { db } from "../firebaseInit";
 import {
@@ -8,12 +8,13 @@ import {
   updateDoc,
   getDoc,
   doc,
-  deleteDoc,
   arrayRemove,
   arrayUnion,
 } from "firebase/firestore";
 
+// ImageForm component for adding/editing images
 function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
+  // State variables for image name and URL
   const [imageName, setImageName] = useState(
     editImageData ? editImageData.name : ""
   );
@@ -21,34 +22,47 @@ function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
     editImageData ? editImageData.url : ""
   );
 
+  // Fetch the album data when the component mounts
   useEffect(() => {
+    // Asynchronous function to fetch album data
     async function fetchAlbum() {
       const docRef = doc(db, "albums", albumId.toString());
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        console.log("Album Document data:", docSnap.data());
+        // You can perform any additional logic based on the album data
       } else {
         console.log("No such document!");
       }
     }
 
+    // Call the asynchronous function
     fetchAlbum();
   }, [albumId]);
 
+  // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
       const imagesCollection = collection(db, "images");
 
+      // Validate input fields
+      if (!imageName.trim() || !imageUrl.trim()) {
+        // Display an alert if either field is empty
+        alert("Please enter both image name and URL");
+        return;
+      }
+
       if (editImageData) {
+        // If editImageData is present, update the existing image
         const imageDoc = doc(imagesCollection, editImageData.id);
         await updateDoc(imageDoc, {
           name: imageName,
           url: imageUrl,
         });
       } else {
+        // If editImageData is not present, add a new image
         const newImageRef = await addDoc(imagesCollection, {
           name: imageName,
           url: imageUrl,
@@ -56,64 +70,50 @@ function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
           albumId: albumId,
         });
 
-        // After adding a new image, update the album document with the new image
+        // Update the album document with the new image reference
         const albumDocRef = doc(db, "albums", albumId.toString());
         await updateDoc(albumDocRef, {
-          images: arrayUnion({ name: imageName, url: imageUrl }),
+          images: arrayUnion({
+            name: imageName,
+            url: imageUrl,
+            id: newImageRef.id,
+          }),
         });
-
-        console.log("New image added with ID: ", newImageRef.id);
       }
 
-      // Clear the input fields
+      // Clear the input fields after submission
       setImageName("");
       setImageUrl("");
 
-      // Call the onSubmit callback to notify the parent component
+      // Trigger the onSubmit callback
       onSubmit();
     } catch (error) {
       console.error("Error adding/updating image to Firestore:", error.message);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      if (editImageData) {
-        const imageDoc = doc(db, "images", editImageData.id);
-        await deleteDoc(imageDoc);
-
-        // After deleting the image, update the album document by removing the image reference
-        const albumDocRef = doc(db, "albums", albumId.toString());
-        await updateDoc(albumDocRef, {
-          images: arrayRemove({
-            name: editImageData.name,
-            url: editImageData.url,
-          }),
-        });
-
-        // Call the onSubmit callback to notify the parent component
-        onSubmit();
-      }
-    } catch (error) {
-      console.error("Error deleting image from Firestore:", error.message);
-    }
-  };
-
+  // Handle clearing the input fields without submitting the form
   const handleClear = () => {
     setImageName("");
     setImageUrl("");
   };
 
+  // JSX structure for rendering the component
   return (
     <>
+      {/* Container for the image form */}
       <div className="container imageform">
         <div className="d-flex justify-content-between align-items-center mb-3">
+          {/* Heading based on whether it's an edit or add operation */}
           <h5>{editImageData ? "Edit Image" : "Add an Image"}</h5>
+          {/* Close button */}
           <button type="button" className="btn " onClick={onClose}>
             <i className="fa-solid fa-circle-xmark fa-2x"></i>
           </button>
         </div>
+        {/* Form for image input */}
         <form>
+          {/* Input for image name */}
           <div className="mb-3">
             <input
               type="text"
@@ -125,6 +125,7 @@ function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
             />
           </div>
 
+          {/* Input for image URL */}
           <div className="mb-3">
             <input
               type="text"
@@ -136,6 +137,7 @@ function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
             />
           </div>
 
+          {/* Buttons for clearing and submitting the form */}
           <div className="mb-3">
             <button
               type="button"
@@ -151,15 +153,6 @@ function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
             >
               {editImageData ? "Update" : "Submit"}
             </button>
-            {editImageData && (
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            )}
           </div>
         </form>
       </div>
@@ -167,4 +160,5 @@ function ImageForm({ onSubmit, albumId, editImageData, onClose }) {
   );
 }
 
+// Export the ImageForm component
 export default ImageForm;
